@@ -3165,6 +3165,101 @@ export INFRA_IDS=$( echo '<+inputSet>'| jq -r '.pipeline.stages[0].parallel[0].s
 
 This is not a permissions issue. Harness does not support viewing account-level or organization-level environments within the project view.
 
+#### How to access the manifest being used for K8s deployment before the rollout step?
+You can access the manifest using the dry run step. The dry run step will have the manifest in the output.
+
+#### How to access dry run manifest in a shell script?
+You can refer to the manifest via expression in the shell script step. Here is an example script -
+```
+cat << EOM > manifest.yaml
+<+pipeline.stages.k8s.spec.execution.steps.K8sDryRun_1.k8s.manifestDryRun>
+EOM
+manifest_content=$(cat manifest.yaml)
+```
+#### Is there a way to pass override value for different hosts in SSH infra?
+No, currently overrides are supported for the infra level. Each host on infra cannot be provided with a different override value.
+
+#### How are selectors derived from connectors in perpetual tasks?
+In perpetual tasks, connectors have specific selectors assigned to them. These selectors identify and retrieve the connector's configuration and related information. By using the connector's selector, the system ensures that the correct connection details are utilized for the task.
+
+#### How are selectors derived from secrets in perpetual tasks?
+Within connectors, there may be secrets (such as passwords or API keys) that have their selectors. These selectors fetch the appropriate secret from a secret management system. The secret selector ensures that the correct sensitive information is retrieved and used securely during task execution.
+
+#### How to add parameters in terraform commands?
+You can add parameters in the command line option in the terraform plan step.
+
+#### How does Harness capture Jenkins's job status?
+We log the status based on the API responses we receive, which can be found in the delegate logs.
+
+#### Why did Harness mark my Jenkins step as a success even though the job status is success?
+Harness will only mark the Jenkins step as a success if the bolean Treat unstable Job-status as success is marked true.
+
+#### How can I check if Jenkins updated the status from "UNSTABLE" to "FAILURE"?
+Jenkins can update the status from "UNSTABLE" to "FAILURE." To verify if any status updates were made, you can check the audit trail in Jenkins. Ensure that the audit trail plugin is installed to view the history of status updates.
+
+#### Regex does not work on expression?
+Regex works on <+input> and not on other expressions in Harness.
+
+#### My expressions from the previous stage are not working for the rollback stage.
+Expressions from the previous step are not evaluated when used rollback stage until this FF is enabled - CDS_ALLOW_EXPRESSION_RESOLUTION_PIPELINE_ROLLBACK.
+
+#### How can I get Env type in the deployment stage?
+You can use the expression - <+env.v1Type> to get the env type of the current deploy stage.
+
+#### How can I set authorization for custom webhooks?
+You can set authorization for webhooks by enabling - Mandate Authorization for Custom Webhook Triggers under the pipeline section of default account settings.
+
+#### Which ASG deployment in NG can be compared to that in CG/FG?
+The one that can be compared with FG is the canary phased deployment that we have, this doc talks about it - https://developer.harness.io/docs/continuous-delivery/deploy-srv-diff-platforms/aws/asg-tutorial/#canary-phased-deployment
+ 
+#### How to specify execution of only a particular stage using harness API?
+We have this API to run an execute-specific stage of the pipeline - https://apidocs.harness.io/tag/Pipeline-Execute#operation/postExecuteStages
+
+#### I am getting the error - "Stage executions are not allowed for the pipeline" when I execute a specific stage of the pipeline via API.
+This error is thrown when you dont have selective execution enabled for a pipeline.
+
+#### How do I enable selective execution of stage for a pipeline?
+To enable selective execution, You can go to the pipeline advance setting for your pipeline and enable "Allow selective stage execution".
+
+#### Is there an API we can use to teardown a resource that we have deployed from the harness to Kubernetes, in case we want to bring down those pods?
+We have an API to perform a rollback of a service - https://apidocs.harness.io/tag/Rollback#operation/triggerRollback.
+
+#### Is there any API that can return just the status of a stage?
+We dont have any API that returns the status of the stage. We have an API that has all the execution details for the pipeline. You can JQ to filter out the required data.
+API - https://apidocs.harness.io/tag/Pipeline-Execution-Details#operation/getExecutionDetailV2
+
+#### How can I monitor Harness Uptime for Prods 1 and 2?
+We do have these endpoints by polling this. You can make sure the platform is active or not -
+ 
+Prod 1 - https://app.harness.io/ng/static/versions.html
+Prod 2 - https://app.harness.io/gratis/ng/static/versions.html
+
+#### I am getting the below error when using terraform after using opentofu - Error while installing registry.opentofu.org/harness/harness v0.31.5: authentication signature from unknown issuer?
+We checked the scenario and this seems like a compatibility issue between Opentofu and Terraform's different versions. To resolve please use the latest version of Terraform and Opentofu.
+
+#### Does the terraform apply step also have "Human readable terraform output" just like the terraform plan step?
+Terraform apply step only provides encrypted JSON output, not plan text human readable plan/output.
+
+#### Why does Terraform apply step only provide output in encrypted format?
+Since terraform output may contain sensitive data, such as passkeys, we dont want to expose these values in plain text.
+
+#### How do I hide sensitive data during runtime input?
+Currently, we don't have any feature in Harness to hide sensitive data in run time input. We do have a feature request - https://harness-io.canny.io/feature-request/p/pipeline-input-to-handle-sensitive-value to support the same.
+As a workaround, you can change the variable type to secret and provide the values via secrets to hide sensitive data.
+
+#### How can I have common overrides value for a service and multiple infra present for ENV?
+Harness supports overrides based on service and env. You can configure an override for an ENV and service to have a common override value for multiple infra and common services.
+
+#### Is there a way where we have these two variables {"a", "b", "c"} and {"d", "e", "f"} and the result is {"a", "b", "c", "d", "e", "f"}?
+Unfortunately, we only support concat on string not array/list. We pass the variable value as strings, so if variable 1 is {"a", "b", "c"} it is passed as "{"a", "b", "c"}" a single variable.
+So variable will be merged as  {{"a", "b", "c"},{"d", "e", "f"}}.
+
+#### What we want to happen is if there are no changes detected in Step1: Terraform Plan, it skips Step2, and goes directly to Step3: Terraform Apply.
+For a step to be skipped, we need to set a conditional execution. For the Approval step to be skipped. You need to parse the plan in shell script and check if the plan is unchanged, output a variable, and use that in conditional execution to skip the approval step.
+
+#### Why do I see this error in my TF deploy step - Encountered error while executing Terraform Command? echo "no" | terraform init -input=false   failed with: Can't ask approval for state migration when interactive input is disabled?
+The harness does not support interactive input during deployment. Since we don't provide an interactive terminal, we have the error. To resolve this make sure you dont have any interactive variable present in your tf file.
+
 ### Infrastructure provisioning FAQs
 
 For frequently asked questions about Harness infrastructure provisioning, go to [Infrastructure provisioning FAQs](/docs/continuous-delivery/cd-infrastructure/provisioning-faqs).

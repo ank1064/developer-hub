@@ -674,3 +674,25 @@ The `main.tf` sample file includes a delegate token option, facilitating automat
 ### What are there discrepancies between the user list, access control, and dashboard?
 
 Harness includes user login data in audit history, but it's not structured for analytics purposes. Creating a custom view for this data isn't currently supported.
+
+### How can I get a list of users in the user group using API without any filters?
+You can use the below API to get the list of users from the user group without using any filters -
+```
+curl -i -v -X POST 'https://app.harness.io/ng/api/user-groups/<USER_GORUP_ID>/users?accountIdentifier=<ACCOUNT_ID>' -H 'Content-Type: application/json' -H 'x-api-key: <PAT_TOKEN>' -d '{}'
+```
+### What metrics are available from the delegate?
+We have the below metrics available for delegates -
+https://developer.harness.io/docs/platform/delegates/manage-delegates/delegate-metrics/#delegate-metrics
+
+### How can I access metrics for the Docker delegate?
+You can access metrics for the Docker delegate by exec-ing into the Docker delegate container and running the following command:
+`curl http://localhost:3460/api/metrics`
+This will display the metrics being responded to.
+
+### Are any ports exposed by default when running a Docker delegate?
+No, by default, when you run the Docker delegate, no ports are exposed.
+
+### How do I expose port 3460 for the Docker delegate to access metrics?
+To expose port 3460 and access metrics for the Docker delegate, you need to run the Docker delegate with the -p 3460:3460 option. After doing this, you can reach the metrics by navigating to:
+`http://<docker-pod-ip>:3460/api/metrics`
+

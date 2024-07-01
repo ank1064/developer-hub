@@ -2250,6 +2250,9 @@ The error `java.lang.IllegalStateException: Failed to execute ApplicationRunner`
 #### How can I a run background step in debug mode in Harness?
 To enable debug logging, set the environment variable to `DEBUG=true`. For more configuration information, go to [Relay proxy configuration reference](https://developer.harness.io/docs/feature-flags/use-ff/relay-proxy/configuration).
 
+#### My Mac build pipelines are getting queued up for harness cloud infra.
+By default, we do not provide a Mac build for hosted builds. Please check with your TPM/Account Manager to get Mac infra added to your license.
+
 <!-- PLEASE ORGANIZE NEW QUESTIONS UNDER CATEGORIES AS INDICATED BY THE LEVEL 2 HEADINGS (##) -->
 
 <!-- If a question applies to multiple categories, choose the one most relevant to the question. For example, "How do I run Windows builds on a K8s cluster build infra?" is most relevant to the "Windows builds" category. Although this question involves build infrastructure and kubernetes clusters, it specifically mentions Windows builds. If a user needs help running Windows builds, they will scan for "Windows" as a keyword before K8s (since K8s is broader than just Windows) -->
